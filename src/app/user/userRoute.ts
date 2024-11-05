@@ -1,8 +1,10 @@
 import { Router } from "express";
+import { userController } from "./useController";
 
 const route = Router()
 
-route.post('create')
+route.post('/create',
+    userController.createUser)
 
 
 
