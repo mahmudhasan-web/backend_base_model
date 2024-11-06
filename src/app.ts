@@ -5,11 +5,9 @@
 // import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express, { Application, Request, Response } from 'express'
-import mongoose from "mongoose"
-
 import router from './app/routes'
-import env from 'dotenv'
 import { PORT } from './secrets'
+import { PrismaClient } from '@prisma/client'
 
 const app: Application = express()
 
@@ -27,8 +25,20 @@ app.use(
   }),
 )
 
+const prisma = new PrismaClient()
 
+async function checkDatabaseConnection() {
+  try {
+    await prisma.$connect();
+    console.log("Database connected successfully!");
+  } catch (error) {
+    console.error("Failed to connect to the database:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
 
+checkDatabaseConnection()
 
 
 
