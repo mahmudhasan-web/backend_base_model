@@ -18,5 +18,26 @@ model User {
   email    String  @unique
   name     String?
   password String
+  orderProducts OrderProduct[]
 }
 
+model Product {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  productName          String
+  price         Float
+  description   String
+  image         Json
+  ratting       Float?
+  brand         String
+  category      String
+  orderProducts OrderProduct[]
+}
+
+model OrderProduct {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  productId Product @relation(fields: [id], references: [id])
+  userName  User @relation(fields: [id], references: [id])
+  userAddress String
+  quantity  Int
+  price     Float
+}

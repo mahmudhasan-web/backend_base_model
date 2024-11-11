@@ -1,6 +1,10 @@
 import { PrismaClient, User } from "@prisma/client";
 import { compareSync, hashSync } from "bcryptjs";
 import { Request, Response } from "express";
+import ApiError from "../../utilis/ApiErr";
+import { StatusCodes } from 'http-status-codes'
+import jwt from 'jsonwebtoken'
+import { SECRETTOKEN } from "../../../secrets";
 
 
 const prisma = new PrismaClient()
@@ -58,22 +62,26 @@ const createUserIntoDB = async (payload: User) => {
     const { email, password, name } = payload
     const user = await prisma.user.findUnique({
         where: {
-            email
+            email: email
         }
     })
 
     if (user) {
-        return { status: 403, data: { message: "User already exist" } }
+        console.log("workinG in throw")        // return { status: 409, data: { message: "User already exist" } }
+        throw new ApiError(StatusCodes.CONFLICT, "User already exit")
     }
+
+    console.log("workin after throw")
+
     const result = await prisma.user.create({
         data: {
-            email,
+            email: email,
             password: hashSync(password, 10),
-            name
+            name: name
         }
     })
 
-    return { status: 201, data: result }
+    return result
 
 }
 
@@ -84,12 +92,33 @@ const logInUserFromDB = async (payload: User) => {
             email: payload.email
         }
     })
-    if (user && compareSync(payload.password, user.password)) {
-        return { status: 200, data: { email: user.email, name: user.name } }
+
+    if (user) {
+        const isCorrectPassword = compareSync(payload.password, user.password)
+        if (isCorrectPassword) {
+            const { password, ...userWithoutPassword } = user;
+
+            const token = jwt.sign(userWithoutPassword, SECRETTOKEN as string, { expiresIn: 36000 })
+
+            return {acces_token : token}
+            
+        }
+
+        throw new ApiError(StatusCodes.FORBIDDEN, "Password doesn't match")
     }
     else {
-        return { status: 400, data: { message: "Invalid user or password" } }
+        throw new ApiError(StatusCodes.CONFLICT, "User doesn't exit")
     }
+
+
+
+
+    // if (user && compareSync(payload.password, user.password)) {
+    //     return { status: 200, data: { email: user.email, name: user.name } }
+    // }
+    // else {
+    //     return { status: 400, data: { message: "Invalid user or password" } }
+    // }
 }
 
 

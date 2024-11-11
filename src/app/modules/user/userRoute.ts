@@ -4,6 +4,7 @@ import { userController } from "./useController";
 const route = Router()
 
 route.post('/create',
+  
     userController.createUser
 )
 
