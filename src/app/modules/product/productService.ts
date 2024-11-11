@@ -1,10 +1,10 @@
 import { PrismaClient, Product } from "@prisma/client";
 import { InputJsonValue } from "@prisma/client/runtime/library";
 import ApiError from "../../utilis/ApiErr";
-import {StatusCodes} from 'http-status-codes'
+import { StatusCodes } from 'http-status-codes'
 
 const prisma = new PrismaClient()
-const createProduct = async (payload: Product) => {
+const createProductToDB = async (payload: Product) => {
     try {
 
 
@@ -26,3 +26,5 @@ const createProduct = async (payload: Product) => {
         throw new ApiError(StatusCodes.BAD_REQUEST, error as string)
     }
 }
+
+export const productService = { createProductToDB }
