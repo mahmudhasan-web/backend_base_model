@@ -5,22 +5,23 @@ import { StatusCodes } from 'http-status-codes'
 
 const prisma = new PrismaClient()
 const createProductToDB = async (payload: Product) => {
+    
+    const result = await prisma.product.create({
+        data: {
+            productName: payload.productName,
+            brand: payload.brand,
+            category: payload.category,
+            description: payload.description,
+            image: payload.image as InputJsonValue,
+            price: payload.price,
+            ratting: payload.ratting,
+        }
+    })
+
+    return result
     try {
 
 
-        const result = await prisma.product.create({
-            data: {
-                productName: payload.productName,
-                brand: payload.brand,
-                category: payload.category,
-                description: payload.description,
-                image: payload.image as InputJsonValue,
-                price: payload.price,
-                ratting: payload.ratting,
-            }
-        })
-
-        return result
 
     } catch (error) {
         throw new ApiError(StatusCodes.BAD_REQUEST, error as string)
